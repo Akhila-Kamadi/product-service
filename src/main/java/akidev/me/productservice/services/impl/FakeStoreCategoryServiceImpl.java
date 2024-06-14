@@ -29,6 +29,9 @@ public class FakeStoreCategoryServiceImpl implements CategoryService {
     @Override
     public List<Product> getProductsInCategory(String category) {
         List<FakeStoreProductDto> productsInCategoryDtoList = fakeStoreClient.getProductsInCategory(category);
+        if (productsInCategoryDtoList.isEmpty()){
+            return null;
+        }
         List<Product> products = new ArrayList<>();
         for (FakeStoreProductDto productDto: productsInCategoryDtoList){
             Product product = new Product();

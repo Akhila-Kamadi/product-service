@@ -2,6 +2,7 @@ package akidev.me.productservice.controllers;
 
 import akidev.me.productservice.dtos.GetSingleProductResponseDto;
 import akidev.me.productservice.dtos.ProductDto;
+import akidev.me.productservice.exceptions.NotFoundException;
 import akidev.me.productservice.models.Category;
 import akidev.me.productservice.models.Product;
 import akidev.me.productservice.services.ProductService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/products")
@@ -61,9 +63,12 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<ProductDto> getSingleProducts(@PathVariable("productId") Long productId){
-        Product product = productService.getSingleProducts(productId);
-        ProductDto productDto = convertProductToProductDto(product);
+    public ResponseEntity<ProductDto> getSingleProducts(@PathVariable("productId") Long productId) throws NotFoundException {
+        Optional<Product> product = productService.getSingleProducts(productId);
+        if (product.isEmpty()){
+            throw new NotFoundException("No Product with product id: " + productId);
+        }
+        ProductDto productDto = convertProductToProductDto(product.get());
 
         MultiValueMap<String,String> headers = new LinkedMultiValueMap<>();
         headers.add("auth-token", "noaccess4uheyhey");
@@ -88,25 +93,36 @@ public class ProductController {
     }
 
     @PatchMapping("/{productId}")
-    public ResponseEntity<ProductDto> updateProduct(@PathVariable("productId") Long productId, @RequestBody ProductDto newProductDetails){
+    public ResponseEntity<ProductDto> updateProduct(@PathVariable("productId") Long productId,
+                                                    @RequestBody ProductDto newProductDetails) throws NotFoundException {
         Product product = convertProductDtoToProduct(newProductDetails);
         Product productResponse = productService.updateProduct(productId, product);
+        if (productResponse == null){
+            throw new NotFoundException("No Product with product id: " + productId);
+        }
         ProductDto productDto1 = convertProductToProductDto(productResponse);
         ResponseEntity<ProductDto> response = new ResponseEntity<>(productDto1, HttpStatus.OK);
         return response;
     }
     @PutMapping("/{productId}")
-    public ResponseEntity<ProductDto> replaceProduct(@PathVariable("productId") Long productId, @RequestBody ProductDto newProductDetails){
+    public ResponseEntity<ProductDto> replaceProduct(@PathVariable("productId") Long productId,
+                                                     @RequestBody ProductDto newProductDetails) throws NotFoundException {
         Product product = convertProductDtoToProduct(newProductDetails);
         Product productResponse = productService.replaceProduct(productId, product);
+        if (productResponse == null){
+            throw new NotFoundException("No Product with product id: " + productId);
+        }
         ProductDto productDto1 = convertProductToProductDto(productResponse);
         ResponseEntity<ProductDto> response = new ResponseEntity<>(productDto1, HttpStatus.OK);
         return response;
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<ProductDto> deleteProduct(@PathVariable("productId") Long productId){
+    public ResponseEntity<ProductDto> deleteProduct(@PathVariable("productId") Long productId) throws NotFoundException {
         Product product = productService.deleteProduct(productId);
+        if (product == null){
+            throw new NotFoundException("No Product with product id: " + productId);
+        }
         ProductDto productDto = convertProductToProductDto(product);
         return new ResponseEntity<>(productDto, HttpStatus.OK);
     }

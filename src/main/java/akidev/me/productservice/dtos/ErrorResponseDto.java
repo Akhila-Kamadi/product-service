@@ -5,7 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ResponseDto {
-    private ResponseStatus responseStatus;
-    private String message;
+public class ErrorResponseDto {
+    private String errorMessage;
 }

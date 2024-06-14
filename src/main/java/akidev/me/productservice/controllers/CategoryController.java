@@ -1,6 +1,7 @@
 package akidev.me.productservice.controllers;
 
 import akidev.me.productservice.dtos.ProductDto;
+import akidev.me.productservice.exceptions.NotFoundException;
 import akidev.me.productservice.models.Product;
 import akidev.me.productservice.services.CategoryService;
 import org.springframework.http.HttpStatus;
@@ -41,8 +42,11 @@ public class CategoryController {
     }
 
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<ProductDto>> getProductsInCategory(@PathVariable("category") String category) {
+    public ResponseEntity<List<ProductDto>> getProductsInCategory(@PathVariable("category") String category) throws NotFoundException {
         List<Product> productsInCategory = categoryService.getProductsInCategory(category);
+        if (productsInCategory==null){
+            throw new NotFoundException("No Product with category: "+category);
+        }
         List<ProductDto> productDtoList = new ArrayList<>();
         for (Product product : productsInCategory) {
             ProductDto productDto = convertProductToProductDto(product);

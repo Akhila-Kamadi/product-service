@@ -4,12 +4,13 @@ import akidev.me.productservice.dtos.ProductDto;
 import akidev.me.productservice.models.Product;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductService {
 
     List<Product> getAllProducts();
 
-    Product getSingleProducts(Long productId);
+    Optional<Product> getSingleProducts(Long productId);
 
     Product addNewProduct(Product product);
 

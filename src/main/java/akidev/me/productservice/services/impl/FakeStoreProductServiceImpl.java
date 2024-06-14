@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FakeStoreProductServiceImpl implements ProductService {
@@ -61,10 +62,13 @@ public class FakeStoreProductServiceImpl implements ProductService {
     The ID of category will be null. But the name shall be correct.
      */
     @Override
-    public Product getSingleProducts(Long productId) {
+    public Optional<Product> getSingleProducts(Long productId) {
         FakeStoreProductDto productDto = fakeStoreClient.getSingleProducts(productId);
+        if (productDto == null){
+            return Optional.empty();
+        }
         Product product = convertFakeStoreProductDtoToProduct(productDto);
-        return product;
+        return Optional.of(product);
     }
 
     @Override
@@ -88,19 +92,28 @@ public class FakeStoreProductServiceImpl implements ProductService {
         productDto.setCategory(product.getCategory().getName());
 
         FakeStoreProductDto fakeStoreProductDto = fakeStoreClient.updateProduct(productId, productDto);
+        if (fakeStoreProductDto == null){
+            return null;
+        }
         return convertFakeStoreProductDtoToProduct(fakeStoreProductDto);
     }
 
     @Override
     public Product replaceProduct(Long productId, Product product) {
         FakeStoreProductDto productDto = convertProductToFakeStoreProductDto(product);
-
         FakeStoreProductDto fakeStoreProductDto = fakeStoreClient.replaceProduct(productId, productDto);
+        if (fakeStoreProductDto == null){
+            return null;
+        }
         return convertFakeStoreProductDtoToProduct(fakeStoreProductDto);
     }
 
     @Override
     public Product deleteProduct(Long productId) {
-        return convertFakeStoreProductDtoToProduct(fakeStoreClient.deleteProduct(productId));
+        FakeStoreProductDto fakeStoreProductDto = fakeStoreClient.deleteProduct(productId);
+        if (fakeStoreProductDto == null){
+            return null;
+        }
+        return convertFakeStoreProductDtoToProduct(fakeStoreProductDto);
     }
 }
