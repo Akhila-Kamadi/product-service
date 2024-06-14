@@ -82,18 +82,32 @@ public class ProductController {
     public ResponseEntity<ProductDto> addNewProduct(@RequestBody ProductDto productDto){
         Product product = convertProductDtoToProduct(productDto);
         Product productResponse = productService.addNewProduct(product);
-        ProductDto productDto1 = convertProductToProductDto(product);
+        ProductDto productDto1 = convertProductToProductDto(productResponse);
         ResponseEntity<ProductDto> response = new ResponseEntity<>(productDto1, HttpStatus.CREATED);
         return response;
     }
 
+    @PatchMapping("/{productId}")
+    public ResponseEntity<ProductDto> updateProduct(@PathVariable("productId") Long productId, @RequestBody ProductDto newProductDetails){
+        Product product = convertProductDtoToProduct(newProductDetails);
+        Product productResponse = productService.updateProduct(productId, product);
+        ProductDto productDto1 = convertProductToProductDto(productResponse);
+        ResponseEntity<ProductDto> response = new ResponseEntity<>(productDto1, HttpStatus.OK);
+        return response;
+    }
     @PutMapping("/{productId}")
-    public String updateProduct(@PathVariable("productId") Long productId, @RequestBody ProductDto newProductDetails){
-        return "updated";
+    public ResponseEntity<ProductDto> replaceProduct(@PathVariable("productId") Long productId, @RequestBody ProductDto newProductDetails){
+        Product product = convertProductDtoToProduct(newProductDetails);
+        Product productResponse = productService.replaceProduct(productId, product);
+        ProductDto productDto1 = convertProductToProductDto(productResponse);
+        ResponseEntity<ProductDto> response = new ResponseEntity<>(productDto1, HttpStatus.OK);
+        return response;
     }
 
     @DeleteMapping("/{productId}")
-    public String deleteProduct(@PathVariable("productId") Long productId){
-        return "Deleting a Product with id: "+productId;
+    public ResponseEntity<ProductDto> deleteProduct(@PathVariable("productId") Long productId){
+        Product product = productService.deleteProduct(productId);
+        ProductDto productDto = convertProductToProductDto(product);
+        return new ResponseEntity<>(productDto, HttpStatus.OK);
     }
 }
