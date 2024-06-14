@@ -1,5 +1,6 @@
 package akidev.me.productservice.services.impl;
 
+import akidev.me.productservice.clients.fakestoreapi.FakeStoreProductDto;
 import akidev.me.productservice.dtos.ProductDto;
 import akidev.me.productservice.models.Category;
 import akidev.me.productservice.models.Product;
@@ -21,20 +22,35 @@ public class FakeStoreProductServiceImpl implements ProductService {
     }
 
 
+    private Product convertFakeStoreProductDtoToProduct(FakeStoreProductDto productDto) {
+        Product product = new Product();
+        product.setId(productDto.getId());
+        product.setTitle(productDto.getTitle());
+        product.setPrice(productDto.getPrice());
+        product.setDescription(productDto.getDescription());
+        product.setImageUrl(productDto.getImage());
+        Category category = new Category();
+        category.setName(productDto.getCategory());
+        product.setCategory(category);
+        return product;
+    }
+
+    private FakeStoreProductDto convertProductToFakeStoreProductDto(Product product) {
+        FakeStoreProductDto productDto= new FakeStoreProductDto();
+        productDto.setId(product.getId());
+        productDto.setPrice(product.getPrice());
+        productDto.setImage(product.getImageUrl());
+        productDto.setDescription(product.getDescription());
+        productDto.setTitle(product.getTitle());
+        productDto.setCategory(product.getCategory().getName());
+        return productDto;
+    }
     @Override
     public List<Product> getAllProducts() {
-        ResponseEntity<ProductDto[]> response = restTemplate.getForEntity(baseUrl, ProductDto[].class);
+        ResponseEntity<FakeStoreProductDto[]> response = restTemplate.getForEntity(baseUrl, FakeStoreProductDto[].class);
         List<Product> products = new ArrayList<>();
-        for (ProductDto productDto: response.getBody()){
-            Product product = new Product();
-            product.setId(productDto.getId());
-            product.setTitle(productDto.getTitle());
-            product.setPrice(productDto.getPrice());
-            product.setDescription(productDto.getDescription());
-            product.setImageUrl(productDto.getImage());
-            Category category = new Category();
-            category.setName(productDto.getCategory());
-            product.setCategory(category);
+        for (FakeStoreProductDto productDto : response.getBody()) {
+            Product product = convertFakeStoreProductDtoToProduct(productDto);
 
             products.add(product);
         }
@@ -47,40 +63,21 @@ public class FakeStoreProductServiceImpl implements ProductService {
      */
     @Override
     public Product getSingleProducts(Long productId) {
-        ResponseEntity<ProductDto> response = restTemplate.getForEntity(baseUrl + "/{id}", ProductDto.class, productId);
-
-        ProductDto productDto = response.getBody();
-
-        Product product = new Product();
-        product.setId(productDto.getId());
-        product.setTitle(productDto.getTitle());
-        product.setPrice(productDto.getPrice());
-        product.setDescription(productDto.getDescription());
-        product.setImageUrl(productDto.getImage());
-        Category category = new Category();
-        category.setName(productDto.getCategory());
-        product.setCategory(category);
+        ResponseEntity<FakeStoreProductDto> response = restTemplate.getForEntity(baseUrl + "/{id}", FakeStoreProductDto.class, productId);
+        FakeStoreProductDto productDto = response.getBody();
+        Product product = convertFakeStoreProductDtoToProduct(productDto);
 
         return product;
     }
 
     @Override
-    public Product addNewProduct(ProductDto productDto) {
-        ResponseEntity<ProductDto> response = restTemplate.postForEntity(baseUrl, productDto, ProductDto.class);
+    public Product addNewProduct(Product product) {
+        FakeStoreProductDto productDto = convertProductToFakeStoreProductDto(product);
+        ResponseEntity<FakeStoreProductDto> response = restTemplate.postForEntity(baseUrl, productDto, FakeStoreProductDto.class);
 
-        ProductDto productDto1 = response.getBody();
-
-        Product product = new Product();
-        product.setId(productDto1.getId());
-        product.setTitle(productDto1.getTitle());
-        product.setPrice(productDto1.getPrice());
-        product.setDescription(productDto1.getDescription());
-        product.setImageUrl(productDto1.getImage());
-        Category category = new Category();
-        category.setName(productDto1.getCategory());
-        product.setCategory(category);
-
-        return product;
+        FakeStoreProductDto fakeStoreProductDto = response.getBody();
+        Product fakeStoreProduct = convertFakeStoreProductDtoToProduct(fakeStoreProductDto);
+        return fakeStoreProduct;
     }
 
     //Product object has only those fields filled which need to be updated
